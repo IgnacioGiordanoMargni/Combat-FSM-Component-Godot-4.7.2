@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/attack_data.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+id = &"heavy_2"
+display_name = "Heavy Finisher"
+duration = 0.78
+damage = 24
+stun = 0.7
+knockback = 8.0
+hitbox_active_start = 0.32
+hitbox_active_end = 0.52
+combo_window_start = 0.4
+combo_window_end = 0.78
+next_light = &""
+next_heavy = &""
+lunge_speed = 3.6
+pose_color = Color(1, 0.3, 0.7, 1)

@@ -1,0 +1,163 @@
+[gd_scene load_steps=25 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/fighter.gd" id="1_fighter"]
+[ext_resource type="Script" path="res://scripts/core/combat_fsm.gd" id="2_fsm"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/combat/stun_component.gd" id="4_stun"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox_component.gd" id="5_hitbox"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox_component.gd" id="6_hurtbox"]
+[ext_resource type="Script" path="res://scripts/combat/fighter_visuals.gd" id="7_visuals"]
+[ext_resource type="Script" path="res://scripts/states/idle_state.gd" id="8_idle"]
+[ext_resource type="Script" path="res://scripts/states/run_state.gd" id="9_run"]
+[ext_resource type="Script" path="res://scripts/states/block_state.gd" id="10_block"]
+[ext_resource type="Script" path="res://scripts/states/attack_state.gd" id="11_attack"]
+[ext_resource type="Script" path="res://scripts/states/hurt_state.gd" id="12_hurt"]
+[ext_resource type="Script" path="res://scripts/states/stunned_state.gd" id="13_stunned"]
+[ext_resource type="Script" path="res://scripts/states/death_state.gd" id="14_death"]
+[ext_resource type="Resource" path="res://resources/attacks/light_1.tres" id="15_light1"]
+[ext_resource type="Resource" path="res://resources/attacks/light_2.tres" id="16_light2"]
+[ext_resource type="Resource" path="res://resources/attacks/light_3.tres" id="17_light3"]
+[ext_resource type="Resource" path="res://resources/attacks/heavy_1.tres" id="18_heavy1"]
+[ext_resource type="Resource" path="res://resources/attacks/heavy_2.tres" id="19_heavy2"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.45
+height = 1.8
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hitbox"]
+radius = 0.55
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hurtbox"]
+radius = 0.62
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.42
+height = 1.7
+radial_segments = 16
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_body"]
+albedo_color = Color(0.22, 0.55, 1, 1)
+metallic = 0.1
+roughness = 0.55
+
+[node name="Fighter" type="CharacterBody3D"]
+script = ExtResource("1_fighter")
+collision_layer = 1
+collision_mask = 1
+is_player_controlled = true
+move_speed = 4.5
+acceleration = 18.0
+rotation_speed = 12.0
+gravity = 18.0
+max_health = 100
+max_stun = 1.0
+
+[node name="BodyCollider" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Visuals" type="Node3D" parent="."]
+script = ExtResource("7_visuals")
+body_path = NodePath("Body")
+idle_color = Color(0.22, 0.55, 1, 1)
+block_color = Color(0.25, 0.85, 0.7, 1)
+
+[node name="Body" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_body")
+material_override = SubResource("StandardMaterial3D_body")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+maximum = 100
+
+[node name="StunComponent" type="Node" parent="."]
+script = ExtResource("4_stun")
+maximum = 1.0
+decay_per_second = 0.65
+
+[node name="Hitbox" type="Area3D" parent="."]
+script = ExtResource("5_hitbox")
+collision_layer = 2
+collision_mask = 2
+monitoring = false
+monitorable = false
+owner_fighter_path = NodePath("..")
+damage = 10
+stun = 0.25
+knockback = 4.0
+
+[node name="HitShape" type="CollisionShape3D" parent="Hitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 1.0, -0.75)
+shape = SubResource("SphereShape3D_hitbox")
+
+[node name="Hurtbox" type="Area3D" parent="."]
+script = ExtResource("6_hurtbox")
+collision_layer = 2
+collision_mask = 2
+monitoring = true
+monitorable = true
+owner_fighter_path = NodePath("..")
+
+[node name="HurtShape" type="CollisionShape3D" parent="Hurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("SphereShape3D_hurtbox")
+
+[node name="FSM" type="Node" parent="."]
+script = ExtResource("2_fsm")
+process_physics_priority = -1
+initial_state = &"Idle"
+fighter_path = NodePath("..")
+
+[node name="Idle" type="Node" parent="FSM"]
+script = ExtResource("8_idle")
+state_name = &"Idle"
+
+[node name="Run" type="Node" parent="FSM"]
+script = ExtResource("9_run")
+state_name = &"Run"
+speed_multiplier = 1.0
+
+[node name="Block" type="Node" parent="FSM"]
+script = ExtResource("10_block")
+state_name = &"Block"
+
+[node name="Light1" type="Node" parent="FSM"]
+script = ExtResource("11_attack")
+state_name = &"Light1"
+data = ExtResource("15_light1")
+
+[node name="Light2" type="Node" parent="FSM"]
+script = ExtResource("11_attack")
+state_name = &"Light2"
+data = ExtResource("16_light2")
+
+[node name="Light3" type="Node" parent="FSM"]
+script = ExtResource("11_attack")
+state_name = &"Light3"
+data = ExtResource("17_light3")
+
+[node name="Heavy1" type="Node" parent="FSM"]
+script = ExtResource("11_attack")
+state_name = &"Heavy1"
+data = ExtResource("18_heavy1")
+
+[node name="Heavy2" type="Node" parent="FSM"]
+script = ExtResource("11_attack")
+state_name = &"Heavy2"
+data = ExtResource("19_heavy2")
+
+[node name="Hurt" type="Node" parent="FSM"]
+script = ExtResource("12_hurt")
+state_name = &"Hurt"
+duration = 0.3
+
+[node name="Stunned" type="Node" parent="FSM"]
+script = ExtResource("13_stunned")
+state_name = &"Stunned"
+duration = 0.9
+
+[node name="Death" type="Node" parent="FSM"]
+script = ExtResource("14_death")
+state_name = &"Death"

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/attack_data.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+id = &"heavy_1"
+display_name = "Heavy 1"
+duration = 0.62
+damage = 16
+stun = 0.45
+knockback = 5.5
+hitbox_active_start = 0.24
+hitbox_active_end = 0.4
+combo_window_start = 0.32
+combo_window_end = 0.62
+next_light = &"Light2"
+next_heavy = &"Heavy2"
+lunge_speed = 2.6
+pose_color = Color(0.75, 0.45, 1, 1)
